@@ -1,0 +1,22 @@
+[tool.poetry]
+name = "goods-api"
+version = "0.1.0"
+description = ""
+authors = ["Timofey <dziamidau@fenion.at>"]
+readme = "README.md"
+packages = [{include = "goods_api"}]
+
+[tool.poetry.dependencies]
+python = "^3.11"
+fastapi = "^0.115.12"
+python-dotenv = "^1.1.0"
+sqlalchemy = "^2.0.40"
+sqlmodel = "^0.0.24"
+asyncpg = "^0.30.0"
+uvicorn = "^0.34.0"
+greenlet = "^3.1.1"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
