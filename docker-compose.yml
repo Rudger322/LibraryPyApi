@@ -8,8 +8,10 @@ services:
     ports:
       - "8000:8000"
     container_name: goods-api-app
+    env_file:
+      - .env
     environment:
-      - DATABASE_URL=postgresql://user:password@db:5432/goods_db
+      - DATABASE_URL=postgresql+asyncpg://${DB_USER}:${DB_PASSWORD}@${DB_HOST}:${DB_PORT}/${DB_NAME}
     volumes:
       - .:/app
     depends_on:
@@ -19,10 +21,12 @@ services:
   db:
     image: postgres:15
     container_name: goods-api-db
+    env_file:
+      - .env
     environment:
-      POSTGRES_USER: goods_user
-      POSTGRES_PASSWORD: goods_user12345!
-      POSTGRES_DB: goods_db
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: ${DB_NAME}
     ports:
       - "5432:5432"
     volumes:
