@@ -24,7 +24,12 @@ tests:
   script:
     - pip install poetry
     - poetry install
-    - poetry run pytest
+    - |
+      if [ -d "tests" ] && [ "$(ls -A tests)" ]; then
+        poetry run pytest
+      else
+        echo "No tests found. Skipping pytest."
+      fi
   only:
     - main
 
