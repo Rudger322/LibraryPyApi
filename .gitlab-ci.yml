@@ -37,6 +37,7 @@ deploy:
   stage: deploy
   image: alpine:latest
   before_script:
+    - echo "Connecting to $SERVER_USER@$SERVER_IP"
     - apk add --no-cache openssh-client
     - eval $(ssh-agent -s)
     - echo "$SSH_PRIVATE_KEY" | ssh-add -
