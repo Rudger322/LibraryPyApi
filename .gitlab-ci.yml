@@ -23,7 +23,7 @@ tests:
   image: python:3.11-slim
   script:
     - pip install poetry
-    - poetry install
+    - poetry install --no-interaction
     - |
       if [ -d "tests" ] && [ "$(ls -A tests)" ]; then
         poetry run pytest
