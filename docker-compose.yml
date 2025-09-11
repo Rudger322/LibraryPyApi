@@ -1,6 +1,10 @@
+version: '3.8'
+
 services:
   api:
-    image: binarrshina/goods-api:latest
+    build:
+      context: .
+      dockerfile: Dockerfile
     ports:
       - "8000:8000"
     container_name: goods-api-app
@@ -8,11 +12,12 @@ services:
       - .env
     environment:
       - DATABASE_URL=postgresql+asyncpg://${DB_USER}:${DB_PASSWORD}@${DB_HOST}:${DB_PORT}/${DB_NAME}
+    volumes:
+      - .:/app
     depends_on:
       db:
         condition: service_healthy
-    restart: always
-
+    restart: on-failure
   db:
     image: postgres:15
     container_name: goods-api-db
@@ -27,10 +32,12 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${DB_USER} -d ${DB_NAME}"]
+      test: ["CMD-SHELL", "pg_isready -U goods_user -d goods_db"]
       interval: 5s
       timeout: 5s
       retries: 5
 
 volumes:
   postgres_data:
+
+
