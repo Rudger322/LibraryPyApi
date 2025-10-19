@@ -7,6 +7,8 @@ import uvicorn
 
 from app.database.db import init_db
 from app.goods.routers.goods import router as router_goods
+from app.books.routers.book_router import router as book_router
+
 
 
 @asynccontextmanager
@@ -21,7 +23,6 @@ app = FastAPI(
     lifespan=lifespan,
     description="Goods tool backend API.",
 )
-
 
 @app.exception_handler(ValidationError)
 async def validation_exception_handler(request: Request, exc: ValidationError):
@@ -41,7 +42,7 @@ async def test():
 
 
 app.include_router(router_goods)
-
+app.include_router(book_router)
 
 if __name__ == "__main__":
     uvicorn.run(app, host="0.0.0.0", port=8000)
