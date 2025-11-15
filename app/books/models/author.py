@@ -1,10 +1,21 @@
-from typing import Optional
-from sqlmodel import SQLModel, Field
+from datetime import date
+from typing import Optional, List
+from app.books.models.book_author import book_authors_table
+from app.database.db import Base
+from sqlalchemy import String
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-class Author(SQLModel, table=True):
-    key: str = Field(primary_key=True, max_length=128)
-    name: str = Field(max_length=100)
-    bio: Optional[str] = None
-    birth_date: Optional[str] = Field(default=None, max_length=20)
-    death_date: Optional[str] = Field(default=None, max_length=20)
-    wikipedia: Optional[str] = Field(default=None, max_length=255)
+
+class Author(Base):
+    __tablename__ = "authors"
+    id: Mapped[int] = mapped_column(primary_key=True)
+    name: Mapped[str] = mapped_column(String(100))
+    bio: Mapped[Optional[str]] = mapped_column(String(500))
+    birth_date: Mapped[Optional[date]] = mapped_column()
+    death_date: Mapped[Optional[date]] = mapped_column()
+    wikipedia: Mapped[Optional[str]] = mapped_column(String(255))
+
+    books: Mapped[List["Book"]] = relationship(
+            secondary=book_authors_table,
+            back_populates="authors"
+    )

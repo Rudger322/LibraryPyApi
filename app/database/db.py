@@ -1,10 +1,16 @@
 from typing import AsyncGenerator
 from sqlmodel import SQLModel
 from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
-from sqlalchemy.orm import sessionmaker
+from sqlalchemy.orm import sessionmaker, DeclarativeBase
+from sqlalchemy import MetaData
+
 
 from app.config.conf import DB_HOST, DB_PORT, DB_NAME, DB_PASSWORD, DB_USER
 
+class Base(DeclarativeBase):
+    pass
+
+from app.books.models import *
 
 DATABASE_URL = (
     f"postgresql+asyncpg://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_NAME}"
@@ -12,11 +18,21 @@ DATABASE_URL = (
 
 engine = create_async_engine(DATABASE_URL, echo=True, future=True)
 
+# metadata = MetaData()
+
+sql_script = ""
 
 async def init_db():
     async with engine.begin() as conn:
-        """Initializes the database by creating all tables specified in the SQLModel metadata."""
-        await conn.run_sync(SQLModel.metadata.create_all)
+        #engine.echo = False
+
+        await conn.run_sync(Base.metadata.drop_all)
+        await conn.run_sync(Base.metadata.create_all)
+
+# async def init_db():
+#     async with engine.begin() as conn:
+#         """Initializes the database by creating all tables specified in the SQLModel metadata."""
+#         await conn.run_sync(SQLModel.metadata.create_all)
 
 
 async def get_session() -> AsyncGenerator[AsyncSession, None]:

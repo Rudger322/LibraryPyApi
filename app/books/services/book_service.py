@@ -1,25 +1,76 @@
 from typing import List, Optional
 from app.books.models.book import Book
 from app.books.repositories.book_repository import BookRepository
-from app.books.repositories.author_repository import AuthorRepository
+from app.books.schemas.book import BookCreate, BookRead, BookShort, BookDetails
+from app.books.schemas.cover import CoverCreate
+from app.books.schemas.subject import SubjectCreate
 from app.database.db import AsyncSession
 
 class BookService:
 
     @staticmethod
-    async def add_book(session: AsyncSession, key: str, title: str, author_key: str) -> Book:
-        await AuthorRepository.get_or_create(session, author_key)
-        book = Book(key=key, title=title)
-        return await BookRepository.add_book(session, book)
+    async def add_book(session: AsyncSession, data: BookCreate) -> BookRead:
+        book = Book(
+            title=data.title,
+            subtitle=data.subtitle,
+            first_publish_date=data.first_publish_date,
+            description=data.description
+        )
+
+        book = await BookRepository.add_book(
+            session,
+            book,
+            authors_ids=data.authors_ids or [],
+            subjects_ids=data.subjects_ids or [],
+            covers_ids=data.covers_ids or []
+        )
+
+        return BookRead.model_validate(book)
 
     @staticmethod
-    async def get_books(session: AsyncSession) -> List[Book]:
-        return await BookRepository.get_all_books(session)
+    async def get_short_books(session: AsyncSession) -> List[BookShort]:
+        books = await BookRepository.get_short_books(session)
+        return [BookShort.model_validate(book) for book in books]
 
     @staticmethod
-    async def get_all_books(session: AsyncSession, title: Optional[str] = None, author: Optional[str] = None, subject: Optional[str] = None):
-        return await BookRepository.get_all_books(session, title, author, subject)
+    async def search_books(title_substring: str,
+                           author_substring: str,
+                           subject_substring: str,
+                           session: AsyncSession) -> List[BookRead]:
+
+        if title_substring is not None:
+            title_books = await BookRepository.get_books_by_title(title_substring, session)
+        else:
+            title_books = await BookRepository.get_books(session)
+
+        if author_substring is not None:
+            author_books = await BookRepository.get_books_by_author(author_substring, session)
+        else:
+            author_books = await BookRepository.get_books(session)
+
+        if subject_substring is not None:
+            subject_books = await BookRepository.get_books_by_subject(subject_substring, session)
+        else:
+            subject_books = await BookRepository.get_books(session)
+
+        title_ids = {book.id for book in title_books}
+        author_ids = {book.id for book in author_books}
+        subject_ids = {book.id for book in subject_books}
+
+        final_ids = title_ids & author_ids & subject_ids
+
+        final_books = [BookRead.model_validate(book) for book in title_books if book.id in final_ids]
+
+        return final_books
 
     @staticmethod
-    async def get_detail_book(key: str, session: AsyncSession):
-        return await BookRepository.get_detail_book(key, session)
+    async def get_book_details(id: int, session: AsyncSession) -> BookDetails | None:
+        return await BookRepository.get_book_details(id, session)
+
+    @staticmethod
+    async def add_cover_book(data: CoverCreate, session: AsyncSession):
+        return await BookRepository.add_cover_book(data, session)
+
+    @staticmethod
+    async def add_subject_book(data: SubjectCreate, session: AsyncSession):
+        return await BookRepository.add_subject_book(data, session)
