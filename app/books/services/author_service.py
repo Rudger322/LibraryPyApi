@@ -13,3 +13,8 @@ class AuthorService:
     @staticmethod
     async def get_authors(session: AsyncSession) -> Author:
         return await AuthorRepository.get_authors(session)
+
+    @staticmethod
+    async def get_author_details(id: int, session: AsyncSession) -> AuthorRead:
+        author = await AuthorRepository.get_author_details(id, session)
+        return AuthorRead.model_validate(author)

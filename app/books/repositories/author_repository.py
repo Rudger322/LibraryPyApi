@@ -49,7 +49,8 @@ class AuthorRepository:
 
         return AuthorRead.model_validate(author)
 
-    #TODO: сделать для author_detail, отдельное окно в main_page
     @staticmethod
-    async def get_details_author_by_id(id: int, session: AsyncSession):
-        pass
+    async def get_author_details(id: int, session: AsyncSession):
+        query = select(Author).where(Author.id == id)
+        result = await session.execute(query)
+        return result.scalars().one_or_none()

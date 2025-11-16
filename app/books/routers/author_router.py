@@ -15,3 +15,7 @@ async def create_author(data: AuthorCreate, session: AsyncSession = Depends(get_
 @router.get("/", response_model=List[AuthorRead])
 async def get_authors(session: AsyncSession = Depends(get_session)):
     return await AuthorService.get_authors(session)
+
+@router.get("/{id}", response_model=AuthorRead)
+async def get_author_details(id: int, session: AsyncSession = Depends(get_session)):
+    return await AuthorService.get_author_details(id, session)
