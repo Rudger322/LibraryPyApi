@@ -1,11 +1,11 @@
-from typing import List, Optional
+from typing import List
 from sqlalchemy import select, insert
 from sqlalchemy.orm import selectinload
 
 from app.books.models import BookCover, Author
 from app.books.models.book import Book
 from app.books.models.book_subject import BookSubject
-from app.books.schemas.book import BookShort, BookDetails
+from app.books.schemas.book import BookDetails
 from app.books.schemas.cover import CoverCreate, CoverRead
 from app.books.schemas.subject import SubjectCreate, SubjectRead
 from app.database.db import AsyncSession

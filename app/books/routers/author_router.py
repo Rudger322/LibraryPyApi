@@ -1,5 +1,5 @@
 from fastapi import APIRouter, Depends
-from typing import List, Optional
+from typing import List
 
 from app.books.schemas.author import AuthorRead, AuthorCreate
 from app.books.services.author_service import AuthorService

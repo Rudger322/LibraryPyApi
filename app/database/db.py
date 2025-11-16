@@ -2,7 +2,6 @@ from typing import AsyncGenerator
 from sqlmodel import SQLModel
 from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
 from sqlalchemy.orm import sessionmaker, DeclarativeBase
-from sqlalchemy import MetaData
 
 
 from app.config.conf import DB_HOST, DB_PORT, DB_NAME, DB_PASSWORD, DB_USER

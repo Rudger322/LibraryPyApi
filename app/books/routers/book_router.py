@@ -1,12 +1,10 @@
 from fastapi import APIRouter, Depends
-from typing import List, Optional
+from typing import List
 
 from app.books.schemas.cover import CoverRead, CoverCreate
 from app.books.schemas.subject import SubjectRead, SubjectCreate
 from app.books.services.book_service import BookService
-from app.books.models.book import Book
 from app.database.db import get_session, AsyncSession
-from app.books.models.DTO.book_short import BookShortDTO
 from app.books.schemas.book import BookRead, BookCreate, BookShort, BookDetails
 
 router = APIRouter(prefix="/books", tags=["books"])

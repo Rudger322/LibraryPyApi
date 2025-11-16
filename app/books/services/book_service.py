@@ -1,4 +1,4 @@
-from typing import List, Optional
+from typing import List
 from app.books.models.book import Book
 from app.books.repositories.book_repository import BookRepository
 from app.books.schemas.book import BookCreate, BookRead, BookShort, BookDetails

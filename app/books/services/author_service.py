@@ -1,6 +1,5 @@
 from app.books.models.author import Author
 from app.books.repositories.author_repository import AuthorRepository
-from app.books.repositories.book_repository import BookRepository
 from app.books.schemas.author import AuthorCreate, AuthorRead
 from app.database.db import AsyncSession
 
