@@ -1,7 +1,11 @@
-from sqlmodel import SQLModel, Field
+from sqlalchemy.orm import Mapped, mapped_column, relationship
+from sqlalchemy import ForeignKey, String
+from app.database.db import Base
 from typing import Optional
 
-class BookCover(SQLModel, table=True):
-    id: Optional[int] = Field(default=None, primary_key=True)
-    cover_file: int
-    book_key: str = Field(foreign_key="book.key")  
+class BookCover(Base):
+    __tablename__ = "book_covers"
+    id: Mapped[int] = mapped_column(primary_key=True)
+    cover_file: Mapped[Optional[int]] = mapped_column()
+    book_id: Mapped[int] = mapped_column(ForeignKey("books.id"))
+    book: Mapped["Book"] = relationship("Book", back_populates="covers")
