@@ -21,22 +21,17 @@ class BookService:
             session,
             book,
             authors_ids=data.authors_ids or [],
-            subjects_ids=data.subjects_ids or [],
-            covers_ids=data.covers_ids or []
+            subjects=data.subjects or [],
+            covers=data.covers or []
         )
 
         return BookRead.model_validate(book)
 
     @staticmethod
-    async def get_short_books(session: AsyncSession) -> List[BookShort]:
-        books = await BookRepository.get_short_books(session)
-        return [BookShort.model_validate(book) for book in books]
-
-    @staticmethod
-    async def search_books(title_substring: str,
+    async def get_short_books(title_substring: str,
                            author_substring: str,
                            subject_substring: str,
-                           session: AsyncSession) -> List[BookRead]:
+                           session: AsyncSession) -> List[BookShort]:
 
         if title_substring is not None:
             title_books = await BookRepository.get_books_by_title(title_substring, session)
@@ -59,7 +54,7 @@ class BookService:
 
         final_ids = title_ids & author_ids & subject_ids
 
-        final_books = [BookRead.model_validate(book) for book in title_books if book.id in final_ids]
+        final_books = [BookShort.model_validate(book) for book in title_books if book.id in final_ids]
 
         return final_books
 

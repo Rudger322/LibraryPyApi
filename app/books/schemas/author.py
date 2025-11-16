@@ -11,7 +11,7 @@ class AuthorBase(BaseModel):
     wikipedia: Optional[str]
 
 class AuthorCreate(AuthorBase):
-    pass
+    books_ids: List[int]
 
 class AuthorRead(AuthorBase):
     id: int

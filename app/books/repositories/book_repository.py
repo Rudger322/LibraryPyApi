@@ -15,8 +15,8 @@ class BookRepository:
     @staticmethod
     async def add_book(session: AsyncSession, book: Book,
                        authors_ids: List[int],
-                       subjects_ids: List[int],
-                       covers_ids: List[int]) -> Book:
+                       subjects: List[str],
+                       covers: List[int]) -> Book:
         session.add(book)
         await session.flush()
 
@@ -27,19 +27,17 @@ class BookRepository:
                 ])
             )
 
-        if subjects_ids:
-            await session.execute(
-                insert(Book.__mapper__.relationships['subjects'].secondary).values([
-                    {"book_id": book.id, "book_subject_id": subject_id} for subject_id in subjects_ids
-                ])
-            )
+        if subjects:
+            for subject in subjects:
+                await BookRepository.add_subject_book(SubjectCreate(
+                    subject=subject,
+                    book_id=book.id), session)
 
-        if covers_ids:
-            await session.execute(
-                insert(Book.__mapper__.relationships['covers'].secondary).values([
-                    {"book_id": book.id, "book_cover_id": cover_id} for cover_id in covers_ids
-                ])
-            )
+        if covers:
+            for cover in covers:
+                await BookRepository.add_cover_book(CoverCreate(
+                    cover_file=cover,
+                    book_id=book.id), session)
 
         await session.commit()
         await session.refresh(book)
@@ -112,9 +110,9 @@ class BookRepository:
             subtitle=book.subtitle,
             first_publish_date=book.first_publish_date,
             description=book.description,
-            authors_ids=[a.id for a in book.authors] if book.authors else [],
-            subjects_ids=[s.id for s in book.subjects] if book.subjects else [],
-            covers_ids=[c.id for c in book.covers] if book.covers else []
+            authors=[a.name for a in book.authors] if book.authors else [],
+            subjects=[s.subject for s in book.subjects] if book.subjects else [],
+            covers=[c.cover_file for c in book.covers] if book.covers else []
         )
 
     @staticmethod

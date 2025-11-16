@@ -13,10 +13,13 @@ class BookBase(BaseModel):
 
 class BookCreate(BookBase):
     authors_ids: Optional[List[int]] = []
-    subjects_ids: Optional[List[int]] = []
-    covers_ids: Optional[List[int]] = []
+    subjects: Optional[List[str]] = []
+    covers: Optional[List[int]] = []
 
-class BookDetails(BookCreate):
+class BookDetails(BookBase):
+    authors: Optional[List[str]] = []
+    subjects: Optional[List[str]] = []
+    covers: Optional[List[int]] = []
     model_config = {"from_attributes": True}
 
 class BookShort(BaseModel):

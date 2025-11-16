@@ -16,15 +16,11 @@ async def create_book(data: BookCreate, session: AsyncSession = Depends(get_sess
     return await BookService.add_book(session, data)
 
 @router.get("/", response_model=List[BookShort])
-async def get_short_books(session: AsyncSession = Depends(get_session)):
-    return await BookService.get_short_books(session)
-
-@router.get("/search", response_model=List[BookRead])
-async def search_books(session: AsyncSession = Depends(get_session),
+async def get_short_books(session: AsyncSession = Depends(get_session),
                        title_substring: str | None = None,
                        author_substring: str | None = None,
                        subject_substring: str | None = None):
-    return await BookService.search_books(title_substring, author_substring, subject_substring, session)
+    return await BookService.get_short_books(title_substring, author_substring, subject_substring, session)
 
 #TODO: сделать
 @router.get("/{id}", response_model=BookDetails)
