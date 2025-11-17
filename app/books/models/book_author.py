@@ -1,5 +1,9 @@
-from sqlmodel import SQLModel, Field
+from sqlalchemy import ForeignKey, Column, Table
+from app.database.db import Base
 
-class BookAuthor(SQLModel, table=True):
-    book_key: str = Field(foreign_key="book.key", primary_key=True)
-    author_key: str = Field(foreign_key="author.key", primary_key=True)
+book_authors_table = Table(
+    "books_authors",
+    Base.metadata,
+    Column("book_id", ForeignKey("books.id"), primary_key=True),
+    Column("author_id", ForeignKey("authors.id"), primary_key=True)
+)

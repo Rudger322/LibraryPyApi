@@ -1,31 +1,38 @@
 from fastapi import APIRouter, Depends
 from typing import List, Optional
-from sqlmodel import SQLModel
 
-from app.books.models.DTO.book_details import BookDetailsDTO
+from app.books.schemas.cover import CoverRead, CoverCreate
+from app.books.schemas.subject import SubjectRead, SubjectCreate
 from app.books.services.book_service import BookService
 from app.books.models.book import Book
 from app.database.db import get_session, AsyncSession
-
 from app.books.models.DTO.book_short import BookShortDTO
+from app.books.schemas.book import BookRead, BookCreate, BookShort, BookDetails
 
 router = APIRouter(prefix="/books", tags=["books"])
 
-@router.post("/", response_model=Book)
-async def create_book(key: str, title: str, author_key: str, session: AsyncSession = Depends(get_session)):
-    return await BookService.add_book(session, key, title, author_key)
+@router.post("/", response_model=BookRead)
+async def create_book(data: BookCreate, session: AsyncSession = Depends(get_session)):
+    return await BookService.add_book(session, data)
 
-@router.get("/", response_model=List[Book])
-async def list_books(session: AsyncSession = Depends(get_session)):
-    return await BookService.get_books(session)
+@router.get("/", response_model=List[BookShort])
+async def get_short_books(session: AsyncSession = Depends(get_session),
+                       title_substring: str | None = None,
+                       author_substring: str | None = None,
+                       subject_substring: str | None = None):
+    return await BookService.get_short_books(title_substring, author_substring, subject_substring, session)
 
-@router.get("/search", response_model=List[BookShortDTO])
-async def get_all_books(session: AsyncSession = Depends(get_session),
-                        title: Optional[str] = None,
-                        author: Optional[str] = None,
-                        subject: Optional[str] = None):
-    return await BookService.get_all_books(session, title, author, subject)
+#TODO: сделать
+@router.get("/{id}", response_model=BookDetails)
+async def get_book_details(id: int, session: AsyncSession = Depends(get_session)):
+    return await BookService.get_book_details(id, session)
 
-@router.get("/search/{key}", response_model=BookDetailsDTO)
-async def get_detail_book(key: str, session: AsyncSession = Depends(get_session)):
-    return await BookService.get_book_details(session, key)
+#TODO: проверить как работает
+
+@router.post("/cover/", response_model=CoverRead)
+async def create_cover_book(data: CoverCreate, session: AsyncSession = Depends(get_session)):
+    return await BookService.add_cover_book(data, session)
+
+@router.post("/subject/", response_model=SubjectRead)
+async def create_subject_book(data: SubjectCreate, session: AsyncSession = Depends(get_session)):
+    return await BookService.add_subject_book(data, session)
