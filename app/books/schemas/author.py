@@ -10,9 +10,6 @@ class AuthorBase(BaseModel):
     death_date: Optional[date]
     wikipedia: Optional[str]
 
-class AuthorCreate(AuthorBase):
-    books_ids: List[int]
-
 class AuthorRead(AuthorBase):
     id: int
     class Config:

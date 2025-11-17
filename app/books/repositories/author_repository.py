@@ -1,7 +1,7 @@
 from sqlalchemy import insert
 from sqlmodel import select
 from app.books.models.author import Author
-from app.books.schemas.author import AuthorCreate, AuthorRead
+from app.books.schemas.author import AuthorRead, AuthorBase
 from app.database.db import AsyncSession
 
 class AuthorRepository:
@@ -24,7 +24,7 @@ class AuthorRepository:
         return result.scalars().all()
 
     @staticmethod
-    async def add_author(session: AsyncSession, data: AuthorCreate):
+    async def add_author(session: AsyncSession, data: AuthorBase):
         author = Author(
             name=data.name,
             bio=data.bio,
@@ -34,15 +34,6 @@ class AuthorRepository:
         )
         session.add(author)
         await session.flush()
-
-        book_ids = data.books_ids
-
-        if data.books_ids:
-            await session.execute(
-                insert(Author.__mapper__.relationships['books'].secondary).values([
-                    {"author_id": author.id, "book_id": book_id} for book_id in book_ids
-                ])
-            )
 
         await session.commit()
         await session.refresh(author)
