@@ -15,6 +15,11 @@ sqlmodel = "^0.0.24"
 asyncpg = "^0.30.0"
 uvicorn = "^0.34.0"
 greenlet = "^3.1.1"
+python-jose = {extras = ["cryptography"], version = "^3.5.0"}
+passlib = {extras = ["bcrypt"], version = "^1.7.4"}
+python-multipart = "^0.0.20"
+pydantic = "^2.12.4"
+email-validator = "^2.3.0"
 
 
 [build-system]

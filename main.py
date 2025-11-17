@@ -9,7 +9,7 @@ from app.database.db import init_db
 from app.goods.routers.goods import router as router_goods
 from app.books.routers.book_router import router as book_router
 from app.books.routers.author_router import router as author_router
-
+from app.auth.routers.auth_router import router as auth_router
 
 
 @asynccontextmanager
@@ -41,7 +41,7 @@ async def pong():
 async def test():
     return {"hello": "world!"}
 
-
+app.include_router(auth_router)
 app.include_router(router_goods)
 app.include_router(book_router)
 app.include_router(author_router)
