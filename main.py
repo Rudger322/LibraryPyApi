@@ -5,12 +5,15 @@ from fastapi.responses import JSONResponse
 from fastapi.encoders import jsonable_encoder
 import uvicorn
 
+
 from app.database.db import init_db
 from app.goods.routers.goods import router as router_goods
 from app.books.routers.book_router import router as book_router
 from app.books.routers.author_router import router as author_router
 from app.auth.routers.auth_router import router as auth_router
-
+from app.reports.routers.customer_router import router as customer_router
+from app.reports.routers.issue_router import router as issue_router
+from app.reports.routers.reports_router import router as reports_router
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -45,6 +48,9 @@ app.include_router(auth_router)
 app.include_router(router_goods)
 app.include_router(book_router)
 app.include_router(author_router)
+app.include_router(customer_router)
+app.include_router(issue_router)
+app.include_router(reports_router)
 
 if __name__ == "__main__":
     uvicorn.run(app, host="0.0.0.0", port=8000)

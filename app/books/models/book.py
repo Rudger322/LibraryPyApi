@@ -19,3 +19,4 @@ class Book(Base):
             secondary=book_authors_table,
             back_populates="books", lazy="selectin"
         )
+    issues: Mapped[Optional[List["Issue"]]] = relationship("Issue", back_populates="book", lazy="selectin")
