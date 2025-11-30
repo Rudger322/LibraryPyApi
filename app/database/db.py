@@ -11,6 +11,8 @@ class Base(DeclarativeBase):
     pass
 
 from app.books.models import *
+from app.auth.models.user import User
+from app.reports.models import Customer, Issue
 
 DATABASE_URL = (
     f"postgresql+asyncpg://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_NAME}"
