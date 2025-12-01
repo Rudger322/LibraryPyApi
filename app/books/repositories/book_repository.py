@@ -89,7 +89,7 @@ class BookRepository:
         return books
 
     @staticmethod
-    async def get_book_details(id: int, session: AsyncSession) -> BookDetails:
+    async def get_book_details(id: int, session: AsyncSession) -> Book | None:
         query = (
             select(Book)
             .options(
@@ -100,35 +100,18 @@ class BookRepository:
             .where(Book.id == id)
         )
         result = await session.execute(query)
-        book = result.scalar_one_or_none()
-
-        if not book:
-            return None
-
-        return BookDetails(
-            title=book.title,
-            subtitle=book.subtitle,
-            first_publish_date=book.first_publish_date,
-            description=book.description,
-            authors=[a.name for a in book.authors] if book.authors else [],
-            subjects=[s.subject for s in book.subjects] if book.subjects else [],
-            covers=[c.cover_file for c in book.covers] if book.covers else []
-        )
+        return result.scalar_one_or_none()
 
     @staticmethod
-    async def add_cover_book(data: CoverCreate, session: AsyncSession):
+    async def add_cover(session: AsyncSession, book_id: int, file_path: str) -> BookCover:
         cover = BookCover(
-            cover_file=data.cover_file,
-            book_id=data.book_id
+            book_id=book_id,
+            cover_file=file_path
         )
         session.add(cover)
         await session.commit()
         await session.refresh(cover)
-        return CoverRead(
-            id=cover.id,
-            cover_file=cover.cover_file,
-            book_id=cover.book_id
-        )
+        return cover
 
     @staticmethod
     async def add_subject_book(data: SubjectCreate, session: AsyncSession):
@@ -144,3 +127,17 @@ class BookRepository:
             subject=subject.subject,
             book_id=subject.book_id
         )
+
+    @staticmethod
+    async def get_cover_by_id(session: AsyncSession, cover_id: int) -> Optional[BookCover]:
+        """Получить обложку по ID"""
+        result = await session.execute(
+            select(BookCover).where(BookCover.id == cover_id)
+        )
+        return result.scalar_one_or_none()
+
+    @staticmethod
+    async def delete_cover(session: AsyncSession, cover: BookCover) -> None:
+        """Удалить обложку"""
+        await session.delete(cover)
+        await session.commit()
