@@ -5,6 +5,7 @@ from app.books.schemas.book import BookCreate, BookRead, BookShort, BookDetails
 from app.books.schemas.cover import CoverCreate
 from app.books.schemas.subject import SubjectCreate
 from app.database.db import AsyncSession
+from app.books.schemas.book import PaginatedResponse
 
 class BookService:
 
@@ -27,36 +28,40 @@ class BookService:
 
         return BookRead.model_validate(book)
 
+
     @staticmethod
-    async def get_short_books(title_substring: str,
-                           author_substring: str,
-                           subject_substring: str,
-                           session: AsyncSession) -> List[BookShort]:
+    async def get_short_books(
+            session: AsyncSession,
+            title_substring: str | None = None,
+            author_substring: str | None = None,
+            subject_substring: str | None = None,
+            page: int = 1,
+            page_size: int = 10
+    ) -> PaginatedResponse:  # Убрали [BookShort]
+        """
+        Получить книги с фильтрацией и пагинацией
 
-        if title_substring is not None:
-            title_books = await BookRepository.get_books_by_title(title_substring, session)
-        else:
-            title_books = await BookRepository.get_books(session)
+        Если указаны несколько фильтров, они работают по логике AND
+        """
+        # Используем новый универсальный метод с фильтрами
+        books, total = await BookRepository.get_books_by_filters_paginated(
+            session=session,
+            title_substring=title_substring,
+            author_substring=author_substring,
+            subject_substring=subject_substring,
+            page=page,
+            page_size=page_size
+        )
 
-        if author_substring is not None:
-            author_books = await BookRepository.get_books_by_author(author_substring, session)
-        else:
-            author_books = await BookRepository.get_books(session)
+        # Конвертируем в BookShort
+        book_shorts = [BookShort.model_validate(book) for book in books]
 
-        if subject_substring is not None:
-            subject_books = await BookRepository.get_books_by_subject(subject_substring, session)
-        else:
-            subject_books = await BookRepository.get_books(session)
-
-        title_ids = {book.id for book in title_books}
-        author_ids = {book.id for book in author_books}
-        subject_ids = {book.id for book in subject_books}
-
-        final_ids = title_ids & author_ids & subject_ids
-
-        final_books = [BookShort.model_validate(book) for book in title_books if book.id in final_ids]
-
-        return final_books
+        return PaginatedResponse(
+            total=total,
+            page=page,
+            page_size=page_size,
+            items=book_shorts
+        )
 
     @staticmethod
     async def get_book_details(id: int, session: AsyncSession) -> BookDetails | None:

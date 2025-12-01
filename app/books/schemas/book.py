@@ -1,6 +1,9 @@
 from datetime import date
 from typing import Optional, List
 from pydantic import BaseModel
+from typing import Generic, TypeVar
+from typing import List, Generic, TypeVar
+from pydantic import BaseModel
 
 from app.books.schemas.author import AuthorBase, AuthorShort
 
@@ -33,3 +36,14 @@ class BookRead(BookBase):
 
     class Config:
         from_attributes = True
+
+T = TypeVar('T')
+
+class PaginatedResponse(BaseModel):
+    """Пагинированный ответ"""
+    total: int  # Общее количество записей
+    page: int  # Текущая страница
+    page_size: int  # Размер страницы
+    items: List  # Список элементов (без Generic)
+
+    model_config = {"from_attributes": True}
