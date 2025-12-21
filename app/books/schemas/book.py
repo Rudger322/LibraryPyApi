@@ -1,6 +1,6 @@
 from datetime import date
 from typing import Optional, List
-from pydantic import BaseModel
+from pydantic import BaseModel, field_validator
 from typing import Generic, TypeVar
 from typing import List, Generic, TypeVar
 from pydantic import BaseModel
@@ -14,15 +14,28 @@ class BookBase(BaseModel):
     first_publish_date: Optional[date] = None
     description: Optional[str] = None
 
+
 class BookCreate(BookBase):
     authors_ids: Optional[List[int]] = []
     subjects: Optional[List[str]] = []
-    covers: Optional[List[int]] = []
+    cover_urls: Optional[List[str]] = []
+
+    @field_validator('cover_urls')
+    @classmethod
+    def validate_urls(cls, v):
+        if v:
+            for url in v:
+                if not url.startswith(('http://', 'https://')):
+                    raise ValueError(f'Invalid URL: {url}. Must start with http:// or https://')
+        return v
+
 
 class BookDetails(BookBase):
+    id: int
     authors: Optional[List[str]] = []
     subjects: Optional[List[str]] = []
-    covers: Optional[List[int]] = []
+    cover_urls: Optional[List[str]] = []
+
     model_config = {"from_attributes": True}
 
 class BookShort(BaseModel):

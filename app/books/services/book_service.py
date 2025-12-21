@@ -23,7 +23,7 @@ class BookService:
             book,
             authors_ids=data.authors_ids or [],
             subjects=data.subjects or [],
-            covers=data.covers or []
+            cover_urls=data.cover_urls or []
         )
 
         return BookRead.model_validate(book)
@@ -65,11 +65,23 @@ class BookService:
 
     @staticmethod
     async def get_book_details(id: int, session: AsyncSession) -> BookDetails | None:
-        return await BookRepository.get_book_details(id, session)
+        book = await BookRepository.get_book_details(id, session)
 
-    @staticmethod
-    async def add_cover_book(data: CoverCreate, session: AsyncSession):
-        return await BookRepository.add_cover_book(data, session)
+        if not book:
+            return None
+
+        cover_urls = [cover.cover_url for cover in book.covers] if book.covers else []
+
+        return BookDetails(
+            id=book.id,
+            title=book.title,
+            subtitle=book.subtitle,
+            first_publish_date=book.first_publish_date,
+            description=book.description,
+            authors=[a.name for a in book.authors] if book.authors else [],
+            subjects=[s.subject for s in book.subjects] if book.subjects else [],
+            cover_urls=cover_urls
+        )
 
     @staticmethod
     async def add_subject_book(data: SubjectCreate, session: AsyncSession):
