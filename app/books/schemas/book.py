@@ -5,7 +5,7 @@ from typing import Generic, TypeVar
 from typing import List, Generic, TypeVar
 from pydantic import BaseModel
 
-from app.books.schemas.author import AuthorBase, AuthorShort
+from app.books.schemas.author import AuthorBase, AuthorShort, AuthorDetail
 
 
 class BookBase(BaseModel):
@@ -32,7 +32,7 @@ class BookCreate(BookBase):
 
 class BookDetails(BookBase):
     id: int
-    authors: Optional[List[str]] = []
+    authors: Optional[List[AuthorDetail]] = []
     subjects: Optional[List[str]] = []
     cover_urls: Optional[List[str]] = []
 
