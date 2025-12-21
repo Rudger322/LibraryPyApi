@@ -20,3 +20,14 @@ class AuthorShort(BaseModel):
     name: str
 
     model_config = {"from_attributes": True}
+
+
+class AuthorDetail(BaseModel):
+    id: int
+    name: str
+    bio: Optional[str] = None
+    birth_date: Optional[date] = None
+    death_date: Optional[date] = None
+    wikipedia: Optional[str] = None
+
+    model_config = {"from_attributes": True}
