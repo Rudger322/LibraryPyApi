@@ -35,6 +35,7 @@ class BookRepository:
                     subject=subject,
                     book_id=book.id), session)
 
+        # Добавляем обложки
         if cover_urls:
             for url in cover_urls:
                 cover = BookCover(
@@ -44,9 +45,10 @@ class BookRepository:
                 session.add(cover)
 
         await session.commit()
-        await session.refresh(book)
-        return book
 
+        await session.refresh(book, attribute_names=['covers'])
+
+        return book
     @staticmethod
     async def get_short_books_paginated(
             session: AsyncSession,

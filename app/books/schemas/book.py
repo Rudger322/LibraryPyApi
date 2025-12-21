@@ -46,6 +46,7 @@ class BookShort(BaseModel):
 
 class BookRead(BookBase):
     id: int
+    cover_urls: Optional[List[str]] = []
 
     class Config:
         from_attributes = True

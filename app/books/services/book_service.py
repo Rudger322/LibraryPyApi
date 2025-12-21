@@ -26,7 +26,16 @@ class BookService:
             cover_urls=data.cover_urls or []
         )
 
-        return BookRead.model_validate(book)
+        cover_urls = [cover.cover_url for cover in book.covers] if book.covers else []
+
+        return BookRead(
+            id=book.id,
+            title=book.title,
+            subtitle=book.subtitle,
+            first_publish_date=book.first_publish_date,
+            description=book.description,
+            cover_urls=cover_urls
+        )
 
 
     @staticmethod
