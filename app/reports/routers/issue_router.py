@@ -1,5 +1,5 @@
-from fastapi import APIRouter, Depends, status
-from typing import List
+from fastapi import APIRouter, Depends, status, Query
+from typing import List, Optional, Literal
 from app.reports.schemas.issue import (
     IssueCreate, IssueUpdate, IssueReturn,
     IssueRead, IssueWithDetails
@@ -36,14 +36,26 @@ async def get_active_issues(
     """Получить активные выдачи - книги не возвращены (только для библиотекарей)"""
     return await IssueService.get_active_issues(session)
 
+
 @router.get("/customer/{customer_id}", response_model=List[IssueWithDetails])
 async def get_customer_issues(
-    customer_id: int,
-    session: AsyncSession = Depends(get_session),
-    current_user: User = Depends(get_current_admin_user)
+        customer_id: int,
+        session: AsyncSession = Depends(get_session),
+        current_user: User = Depends(get_current_admin_user),
+        status: Optional[Literal["current", "history"]] = Query(
+            None,
+            description="Фильтр по статусу: 'current' - невозвращённые, 'history' - возвращённые"
+        )
 ):
-    """Получить все выдачи конкретного читателя (только для библиотекарей)"""
-    return await IssueService.get_customer_issues(session, customer_id)
+    """
+    Получить выдачи конкретного читателя (только для библиотекарей)
+
+    Примеры использования:
+    - GET /issues/customer/1 - все выдачи читателя
+    - GET /issues/customer/1?status=current - только текущие (не возвращённые)
+    - GET /issues/customer/1?status=history - только история (возвращённые)
+    """
+    return await IssueService.get_customer_issues(session, customer_id, status)
 
 @router.get("/{issue_id}", response_model=IssueWithDetails)
 async def get_issue(

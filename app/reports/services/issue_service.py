@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, Optional, Literal
 from datetime import date, timedelta
 from fastapi import HTTPException, status
 from app.reports.models.issue import Issue
@@ -195,10 +195,17 @@ class IssueService:
     @staticmethod
     async def get_customer_issues(
             session: AsyncSession,
-            customer_id: int
+            customer_id: int,
+            status_filter: Optional[Literal["current", "history"]] = None
     ) -> List[IssueWithDetails]:
-        """Получить все выдачи читателя"""
-        # Проверяем существование читателя
+        """
+        Получить выдачи конкретного читателя
+
+        status_filter:
+        - "current" - только текущие (не возвращённые)
+        - "history" - только история (возвращённые)
+        - None - все выдачи
+        """
         customer = await CustomerRepository.get_customer_by_id(session, customer_id)
         if not customer:
             raise HTTPException(
@@ -206,7 +213,9 @@ class IssueService:
                 detail="Customer not found"
             )
 
-        issues = await IssueRepository.get_issues_by_customer(session, customer_id)
+        issues = await IssueRepository.get_issues_by_customer(
+            session, customer_id, status_filter
+        )
 
         return [
             IssueWithDetails(
