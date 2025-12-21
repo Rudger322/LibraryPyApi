@@ -1,6 +1,7 @@
 from typing import List, Optional
 from app.books.models.book import Book
 from app.books.repositories.book_repository import BookRepository
+from app.books.schemas.author import AuthorDetail
 from app.books.schemas.book import BookCreate, BookRead, BookShort, BookDetails
 from app.books.schemas.cover import CoverCreate
 from app.books.schemas.subject import SubjectCreate
@@ -70,6 +71,18 @@ class BookService:
         if not book:
             return None
 
+        authors = [
+            AuthorDetail(
+                id=author.id,
+                name=author.name,
+                bio=author.bio,
+                birth_date=author.birth_date,
+                death_date=author.death_date,
+                wikipedia=author.wikipedia
+            )
+            for author in book.authors
+        ] if book.authors else []
+
         cover_urls = [cover.cover_url for cover in book.covers] if book.covers else []
 
         return BookDetails(
@@ -78,7 +91,7 @@ class BookService:
             subtitle=book.subtitle,
             first_publish_date=book.first_publish_date,
             description=book.description,
-            authors=[a.name for a in book.authors] if book.authors else [],
+            authors=authors,
             subjects=[s.subject for s in book.subjects] if book.subjects else [],
             cover_urls=cover_urls
         )
