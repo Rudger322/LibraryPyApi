@@ -1,7 +1,7 @@
 from typing import List, Optional
 from fastapi import HTTPException, status
 from app.reports.models.customer import Customer
-from app.reports.schemas.customer import CustomerCreate, CustomerUpdate, CustomerRead
+from app.reports.schemas.customer import CustomerCreate, CustomerUpdate, CustomerRead, PaginatedCustomersResponse
 from app.reports.repositories.customer_repository import CustomerRepository
 from app.database.db import AsyncSession
 
@@ -78,3 +78,31 @@ class CustomerService:
             )
 
         await CustomerRepository.delete_customer(session, customer)
+
+
+    @staticmethod
+    async def get_customers(
+            session: AsyncSession,
+            customer_id: Optional[int] = None,
+            name: Optional[str] = None,
+            email: Optional[str] = None,
+            page: int = 1,
+            page_size: int = 10
+    ) -> PaginatedCustomersResponse:
+        customers, total = await CustomerRepository.get_customers_paginated(
+            session=session,
+            customer_id=customer_id,
+            name=name,
+            email=email,
+            page=page,
+            page_size=page_size
+        )
+
+        customer_reads = [CustomerRead.model_validate(c) for c in customers]
+
+        return PaginatedCustomersResponse(
+            total=total,
+            page=page,
+            page_size=page_size,
+            items=customer_reads
+        )

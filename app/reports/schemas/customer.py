@@ -1,5 +1,5 @@
 from datetime import date
-from typing import Optional
+from typing import Optional, List
 from pydantic import BaseModel, EmailStr
 
 
@@ -35,5 +35,14 @@ class CustomerRead(CustomerBase):
 class CustomerShort(BaseModel):
     id: int
     name: str
+
+    model_config = {"from_attributes": True}
+
+
+class PaginatedCustomersResponse(BaseModel):
+    total: int
+    page: int
+    page_size: int
+    items: List[CustomerRead]
 
     model_config = {"from_attributes": True}
