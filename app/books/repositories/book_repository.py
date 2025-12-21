@@ -192,15 +192,15 @@ class BookRepository:
             page: int = 1,
             page_size: int = 10
     ) -> tuple[List[Book], int]:
-        """
-        Поиск книг с несколькими фильтрами и пагинацией
-        Фильтры работают по логике AND (все условия должны выполняться)
-        """
+        """Поиск книг с несколькими фильтрами и пагинацией"""
         from app.books.models.author import Author
         from app.books.models.book_subject import BookSubject
 
         # Базовый запрос
-        base_query = select(Book).options(selectinload(Book.authors))
+        base_query = select(Book).options(
+            selectinload(Book.authors),
+            selectinload(Book.covers)  # ✅ Добавили
+        )
         count_query = select(func.count(Book.id.distinct()))
 
         # Применяем фильтры

@@ -38,12 +38,14 @@ class BookDetails(BookBase):
 
     model_config = {"from_attributes": True}
 
+
 class BookShort(BaseModel):
     id: int
     title: str
     authors: Optional[List[AuthorShort]] = None
-    model_config = {"from_attributes": True}
+    cover_urls: Optional[List[str]] = []
 
+    model_config = {"from_attributes": True}
 class BookRead(BookBase):
     id: int
     cover_urls: Optional[List[str]] = []

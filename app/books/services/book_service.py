@@ -1,7 +1,7 @@
 from typing import List, Optional
 from app.books.models.book import Book
 from app.books.repositories.book_repository import BookRepository
-from app.books.schemas.author import AuthorDetail
+from app.books.schemas.author import AuthorDetail, AuthorShort
 from app.books.schemas.book import BookCreate, BookRead, BookShort, BookDetails
 from app.books.schemas.cover import CoverCreate
 from app.books.schemas.subject import SubjectCreate
@@ -38,7 +38,6 @@ class BookService:
             cover_urls=cover_urls
         )
 
-
     @staticmethod
     async def get_short_books(
             session: AsyncSession,
@@ -47,13 +46,8 @@ class BookService:
             subject_substring: str | None = None,
             page: int = 1,
             page_size: int = 10
-    ) -> PaginatedResponse:  # Убрали [BookShort]
-        """
-        Получить книги с фильтрацией и пагинацией
+    ) -> PaginatedResponse:
 
-        Если указаны несколько фильтров, они работают по логике AND
-        """
-        # Используем новый универсальный метод с фильтрами
         books, total = await BookRepository.get_books_by_filters_paginated(
             session=session,
             title_substring=title_substring,
@@ -63,8 +57,17 @@ class BookService:
             page_size=page_size
         )
 
-        # Конвертируем в BookShort
-        book_shorts = [BookShort.model_validate(book) for book in books]
+        book_shorts = []
+        for book in books:
+            cover_urls = [cover.cover_url for cover in book.covers] if book.covers else []
+
+            book_short = BookShort(
+                id=book.id,
+                title=book.title,
+                authors=[AuthorShort.model_validate(a) for a in book.authors] if book.authors else None,
+                cover_urls=cover_urls
+            )
+            book_shorts.append(book_short)
 
         return PaginatedResponse(
             total=total,
