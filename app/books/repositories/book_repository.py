@@ -18,7 +18,7 @@ class BookRepository:
     async def add_book(session: AsyncSession, book: Book,
                        authors_ids: List[int],
                        subjects: List[str],
-                       covers: List[int]) -> Book:
+                       cover_urls: List[str]) -> Book:
         session.add(book)
         await session.flush()
 
@@ -35,11 +35,13 @@ class BookRepository:
                     subject=subject,
                     book_id=book.id), session)
 
-        if covers:
-            for cover in covers:
-                await BookRepository.add_cover_book(CoverCreate(
-                    cover_file=cover,
-                    book_id=book.id), session)
+        if cover_urls:
+            for url in cover_urls:
+                cover = BookCover(
+                    book_id=book.id,
+                    cover_url=url
+                )
+                session.add(cover)
 
         await session.commit()
         await session.refresh(book)
@@ -270,7 +272,7 @@ class BookRepository:
         return books
 
     @staticmethod
-    async def get_book_details(id: int, session: AsyncSession) -> BookDetails:
+    async def get_book_details(id: int, session: AsyncSession) -> Book | None:
         query = (
             select(Book)
             .options(
@@ -281,35 +283,7 @@ class BookRepository:
             .where(Book.id == id)
         )
         result = await session.execute(query)
-        book = result.scalar_one_or_none()
-
-        if not book:
-            return None
-
-        return BookDetails(
-            title=book.title,
-            subtitle=book.subtitle,
-            first_publish_date=book.first_publish_date,
-            description=book.description,
-            authors=[a.name for a in book.authors] if book.authors else [],
-            subjects=[s.subject for s in book.subjects] if book.subjects else [],
-            covers=[c.cover_file for c in book.covers] if book.covers else []
-        )
-
-    @staticmethod
-    async def add_cover_book(data: CoverCreate, session: AsyncSession):
-        cover = BookCover(
-            cover_file=data.cover_file,
-            book_id=data.book_id
-        )
-        session.add(cover)
-        await session.commit()
-        await session.refresh(cover)
-        return CoverRead(
-            id=cover.id,
-            cover_file=cover.cover_file,
-            book_id=cover.book_id
-        )
+        return result.scalar_one_or_none()
 
     @staticmethod
     async def add_subject_book(data: SubjectCreate, session: AsyncSession):

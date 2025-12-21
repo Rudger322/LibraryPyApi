@@ -53,16 +53,13 @@ async def get_short_books(
         page_size=page_size
     )
 
-#TODO: сделать
 @router.get("/{id}", response_model=BookDetails)
-async def get_book_details(id: int, session: AsyncSession = Depends(get_session)):
-    return await BookService.get_book_details(id, session)
-
-#TODO: проверить как работает
-
-@router.post("/cover/", response_model=CoverRead)
-async def create_cover_book(data: CoverCreate, session: AsyncSession = Depends(get_session)):
-    return await BookService.add_cover_book(data, session)
+async def get_book_details(
+    id: int,
+    session: AsyncSession = Depends(get_session)
+):
+    book = await BookService.get_book_details(id, session)
+    return book
 
 @router.post("/subject/", response_model=SubjectRead)
 async def create_subject_book(data: SubjectCreate, session: AsyncSession = Depends(get_session)):
